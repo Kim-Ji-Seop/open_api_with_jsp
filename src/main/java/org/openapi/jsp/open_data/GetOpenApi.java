@@ -61,7 +61,7 @@ public class GetOpenApi {
             // 페이지네이션을 위한 루프
             while (start <= total) {
                 TbPublicWifiInfoWrapper wrapper = getJson(start, end);
-                if(wrapper.getTbPublicWifiInfo().getList_total_count() != total){
+                if(wrapper.getTbPublicWifiInfo().getList_total_count() != total){ // 와이파이 데이터 수량 업데이트 될 시
                     total = wrapper.getTbPublicWifiInfo().getList_total_count();
                 }
                 connection.insertWifiInfo(conn, wrapper); // 데이터베이스에 삽입

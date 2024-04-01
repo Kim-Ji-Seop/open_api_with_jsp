@@ -36,12 +36,17 @@
                         ResultSet rs = stmt.executeQuery(sql);
         
                         while (rs.next()) {
-                            
-                            out.println("<tr style=\"text-align: center;\"><td>" + rs.getString("id") + "</td>");
+
+                            out.println("<tr style=\"text-align: center;\">");
+                            out.println("<td>" + rs.getString("id") + "</td>");
                             out.println("<td>" + rs.getString("lat_coordinate") + "</td>");
                             out.println("<td>" + rs.getString("lnt_coordinate") + "</td>");
                             out.println("<td>" + rs.getString("created") + "</td>");
-                            out.println("<td>" + "삭제" + "</td></tr>");
+
+                            // 삭제 링크에 행의 id를 파라미터로 전달
+                            out.println("<td><a href=\"history-delete.jsp?id=" + rs.getString("id") + "\">삭제</a></td>");
+
+                            out.println("</tr>");
                         }
                         rs.close();
                         stmt.close();

@@ -46,7 +46,7 @@ public class DBConnection {
                     "CREATE TABLE IF NOT EXISTS wifi_info\n" +
                     "(\n" +
                     "    id                      INTEGER PRIMARY KEY AUTOINCREMENT, \n" +
-                    "    management_num          TEXT NOT NULL, \n" +
+                    "    management_num          TEXT NOT NULL UNIQUE, \n" +
                     "    region                  TEXT NOT NULL, \n" +
                     "    name_of_wifi            TEXT NOT NULL, \n" +
                     "    street_address          TEXT NOT NULL, \n" +
@@ -87,13 +87,20 @@ public class DBConnection {
             System.exit(0);
         }
     }
+
     public void insertWifiInfo(Connection conn, TbPublicWifiInfoWrapper wrapper){
-        String sql = "INSERT INTO wifi_info (management_num, region, name_of_wifi, " +
+        String sql =
+                "INSERT OR IGNORE INTO wifi_info (management_num, region, name_of_wifi, " +
                 "street_address, detailed_address, installed_floor, installed_type, " +
                 "installed_position, service_division, network_type, installed_year, " +
                 "in_or_outdoor_division, connection_env, lat_coordinate, lnt_coordinate, work_date) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        String updateSql =
+                "UPDATE wifi_info " +
+                "SET updated = datetime('now') " +
+                "WHERE management_num = ?;";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql);
+             PreparedStatement updatePstmt = conn.prepareStatement(updateSql)) {
             for(WifiInfo info : wrapper.getTbPublicWifiInfo().getRow()){
                 pstmt.setString(1, info.getManagementNum().isEmpty() ? "" : info.getManagementNum());
                 pstmt.setString(2, info.getRegion().isEmpty() ? "" : info.getRegion());
@@ -112,6 +119,9 @@ public class DBConnection {
                 pstmt.setString(15, info.getLntCoordinate().isEmpty() ? "" : info.getLntCoordinate());
                 pstmt.setString(16, info.getWorkDate().isEmpty() ? "" : info.getWorkDate());
                 pstmt.executeUpdate();
+
+                updatePstmt.setString(1, info.getManagementNum());
+                updatePstmt.executeUpdate();
             }
 
         } catch (SQLException e) {
